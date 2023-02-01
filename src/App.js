@@ -1,23 +1,26 @@
-import logo from './logo.svg';
 import './App.css';
+import {PORT} from "./utils/constants"
 
 function App() {
+  const url = `ws://localhost:${PORT}`
+  let wsClient;
+  const init = () => {
+    wsClient = new WebSocket(url)
+    wsClient.onopen = () => {
+      const message = {payload: {message: "hello from react"}}
+      console.log("connection established")
+      wsClient.send(JSON.stringify(message))
+    }
+    wsClient.onmessage = (messageEvent) => {
+      console.log(messageEvent.data)
+    }
+  }
+  
+  init()
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h2 className='text-3xl'>hello</h2>
+      <button className="border-2" >start connection</button>
     </div>
   );
 }
