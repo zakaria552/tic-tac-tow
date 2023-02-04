@@ -21,10 +21,9 @@ wsServer.on("connection", (socket) => {
             case CLIENT.MESSAGES.NEW_USER:
                 clientsInServer++
                 socket.send(JSON.stringify({type: SERVER.MESSAGES.SERVER_INFO, payload: {clientsInServer}}))
-                // roleAsignment(socket)
+                broadcast({type: SERVER.MESSAGES.SERVER_INFO, payload: {clientsInServer}}, socket)
                 break;
             case CLIENT.MESSAGES.FIND_GAME:
-                // roleAsignment(socket)
                 findGame(socket)
                 break;
             case CLIENT.MESSAGES.START_GAME:

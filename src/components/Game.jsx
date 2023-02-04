@@ -1,40 +1,34 @@
 import { useEffect, useState } from "react"
 import { winCheck} from "../utils/gamelogic"
 import "../styles.css"
-import { CLIENT } from "../utils/constants"
+import { CLIENT, STATE } from "../utils/constants"
 function Game(props) {
-    const {myTurn, setMyTurn, playerRole, grid, setGrid, wsClient, move, startGame} = props  
+    const {state, dispatch} = props  
+    console.log(props)
     const playYourTurn = (e) => {
-        console.log("my role ", playerRole)
-        let gameState; 
+        console.log("my role ", state.playerRole)
         const [i, j] = e.target.id.split("")
-        const message = {type: CLIENT.MESSAGES.TURN_PLAYED, payload: {move: [i,j, playerRole]}}
-        let mutatedGrid = [...grid]
-        if(playerRole) {
-            mutatedGrid[i][j] = playerRole 
-            setGrid(mutatedGrid)
-            wsClient.send(JSON.stringify(message))
-            setMyTurn(false)
+        const message = {type: CLIENT.MESSAGES.TURN_PLAYED, payload: {move: [i,j, state.playerRole]}}
+        let mutatedGrid = [...state.grid]
+        if(state.playerRole) {
+            mutatedGrid[i][j] = state.playerRole
+            dispatch({type: STATE.ACTION.TURN_PLAYED, payload:{grid: mutatedGrid}})
+            state.wsClient.send(JSON.stringify(message))
         } 
-        //else {
-        //     // e.target.innerText = "o"
-        //     mutatedGrid[i][j] = "o" 
-        //     setGameGrid(mutatedGrid)
-        //     console.log(winCheck(mutatedGrid))
-        //     setTurn("x")
-        // }
     }
     useEffect(() => {
-        console.log("start: " + startGame, " myturn: " + myTurn )
-    }, [startGame, myTurn])
+        console.log("start: " + state.startGame, " myturn: " + state.myTurn )
+        console.log(props)
+    }, [state, state.myTurn])
     return (
         <div className="border-2 border-gray-800 flex flex-col h-2/3 w-1/3">
-            {grid.map((row, i) => {
+            {state.grid.map((row, i) => {
+                {console.log(row)}
                 return (
                     <div key={i} className="flex justify-center items-center h-1/3">
                         {row.map((tile,j) => {
                             return (
-                                <button key={`col${j}`} disabled={!(myTurn && startGame)} className=" text1 text-center flex flex-col items-center w-full h-full bg-cyan-300 border-2" onClick={playYourTurn} id={`${i}${j}`}>
+                                <button key={`col${j}`} disabled={!(state.myTurn && state.startGame)} className=" text1 text-center flex flex-col items-center w-full h-full bg-cyan-300 border-2" onClick={playYourTurn} id={`${i}${j}`}>
                                     {tile}
                                 </button>
                             )
