@@ -22,8 +22,19 @@ const SERVER = {
     }
 }
 
+const STATE = {
+    ACTION: {
+        TURN_PLAYED: "TURN_PLAYED",
+        ASIGNED_ROLE: "ASIGNED_ROLE",
+        MY_TURN: "MY_TURN",
+        START_GAME: "START_GAME",
+        CONNECT: "CONNECT", 
+        SERVER_STATS:"SERVER_STATS"
+    }
+}
 module.exports = {
     PORT,
     CLIENT,
-    SERVER
+    SERVER,
+    STATE
 }
