@@ -5,9 +5,9 @@ const {PORT, CLIENT, SERVER} = require("./src/utils/constants")
 
 const server = http.createServer()
 const wsServer = new WebSocketServer({server})
+const publicGames = [] // [{},{},....] -> {roles:[], clients:[]}
 const roles = ["o", "x"]
-const selectedRoles = []
-
+let clientsInServer = 0
 server.listen(PORT ,() => {
     console.log("Websocket is running on port", PORT)
 })
@@ -19,17 +19,21 @@ wsServer.on("connection", (socket) => {
         const {type, payload} = JSON.parse(data)
         switch(type) {
             case CLIENT.MESSAGES.NEW_USER:
-                roleAsignment(socket)
+                clientsInServer++
+                socket.send(JSON.stringify({type: SERVER.MESSAGES.SERVER_INFO, payload: {clientsInServer}}))
+                // roleAsignment(socket)
+                break;
+            case CLIENT.MESSAGES.FIND_GAME:
+                // roleAsignment(socket)
+                findGame(socket)
                 break;
             case CLIENT.MESSAGES.START_GAME:
                 const zeroOrOne = Math.floor(Math.random() * 2)
-                broadcast({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}})
+                setTimeout(() => broadcast({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}), 500)
                 break;
             case CLIENT.MESSAGES.TURN_PLAYED:
-                console.log(type, payload.move)
-                let move = payload.move
-                let message = {type: SERVER.BROADCAST.TURN_BEEN_PLAYED, payload: {move}}
-                broadcast(message, socket)
+                let message = {type: SERVER.BROADCAST.TURN_BEEN_PLAYED, payload: {move: payload.move}}
+                broadcastGame(message, socket)
                 break;
             default:
                 break;
@@ -37,31 +41,43 @@ wsServer.on("connection", (socket) => {
         console.log(payload.message)
     })
 })
-
-function roleAsignment(socket) {
+const findGame = (socket) => {
     const message = {type: SERVER.MESSAGES.ROLE_ASIGNMENT, payload: {}}
-    // const message2 = {type: SERVER.BROADCAST.START_GAME, payload: {playerTurn: roles[zeroOrOne] }}
-    const message2 = {type: SERVER.MESSAGES.READY_TO_BEGIN}
-    if(selectedRoles.length === 0) {
+    const lastIndex = publicGames.length - 1
+    let room = publicGames[lastIndex]
+    if(!room) {
+        // {roles:[], clients:[]}
+        let room = {roles:[roles[0]], clients:[socket]}
+        publicGames.push(room)
         message.payload.role = roles[0]
-        selectedRoles.push(roles[0])
-    } else if(selectedRoles.length === 1) {
-        message.payload.role = roles[1]
-        selectedRoles.push(roles[1])
     } else {
-        message.type = SERVER.MESSAGES.GAME_IS_FULL
+        if(room.roles.length === 1) {
+            // room.push(roles[1])
+            publicGames[lastIndex].roles.push(roles[1])
+            publicGames[lastIndex].clients.push(socket)
+            message.payload.role = roles[1]
+        } else {
+            let room = {roles:[roles[0]], clients:[socket]}
+            publicGames.push(room)
+            message.payload.role = roles[0]
+        }
     }
     socket.send(JSON.stringify(message))
-    // if(selectedRoles.length === 2) {
-    //    setTimeout(() =>  broadcast(message2), 2000)
-    // }
 }
 
 function broadcast(message, socketToOmit) {
-    console.log("Broadcasting")
     wsServer.clients.forEach(connectedClient => {
         if(connectedClient.readyState === WebSocket.OPEN && connectedClient !== socketToOmit){
             connectedClient.send(JSON.stringify(message))
         }
     });
+}
+
+function broadcastGame(message, socketToOmit) {
+    let room = publicGames.find((room) => room.clients.includes(socketToOmit))
+    room.clients.forEach((connectedClient) => {
+        if(connectedClient.readyState === WebSocket.OPEN && connectedClient !== socketToOmit) {
+            connectedClient.send(JSON.stringify(message))
+        }
+    })
 }
