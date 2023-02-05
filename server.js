@@ -17,6 +17,7 @@ wsServer.on("connection", (socket) => {
     socket.send("hello from the the server side")
     socket.on("message", (data) => {
         const {type, payload} = JSON.parse(data)
+        const zeroOrOne = Math.floor(Math.random() * 2)
         switch(type) {
             case CLIENT.MESSAGES.NEW_USER:
                 clientsInServer++
@@ -27,17 +28,23 @@ wsServer.on("connection", (socket) => {
                 findGame(socket)
                 break;
             case CLIENT.MESSAGES.START_GAME:
-                const zeroOrOne = Math.floor(Math.random() * 2)
                 setTimeout(() => broadcast({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}), 500)
                 break;
+            // case CLIENT.MESSAGES.RESTART_GAME:
+            //     let message1 = {type: SERVER.BROADCAST.RESTARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}
+            //     setTimeout(() => broadcastGame(message1, socket, true), 500)
+            //     break;
             case CLIENT.MESSAGES.TURN_PLAYED:
+                console.log(payload)
                 let message = {type: SERVER.BROADCAST.TURN_BEEN_PLAYED, payload: {move: payload.move}}
+                if(payload.gameState.won) message.type = SERVER.BROADCAST.GAME_LOST
+                if(payload.gameState.draw) message.type = SERVER.BROADCAST.GAME_DRAW
                 broadcastGame(message, socket)
                 break;
             default:
                 break;
         }
-        console.log(payload.message)
+        // console.log(payload.message)
     })
 })
 const findGame = (socket) => {
@@ -72,11 +79,15 @@ function broadcast(message, socketToOmit) {
     });
 }
 
-function broadcastGame(message, socketToOmit) {
+function broadcastGame(message, socketToOmit, restart = false) {
     let room = publicGames.find((room) => room.clients.includes(socketToOmit))
     room.clients.forEach((connectedClient) => {
-        if(connectedClient.readyState === WebSocket.OPEN && connectedClient !== socketToOmit) {
+        if(restart) {
             connectedClient.send(JSON.stringify(message))
+        } else {
+            if(connectedClient.readyState === WebSocket.OPEN && connectedClient !== socketToOmit) {
+                connectedClient.send(JSON.stringify(message))
+            }
         }
     })
 }

@@ -5,7 +5,9 @@ const CLIENT = {
         NEW_USER: "NEW_USER",
         TURN_PLAYED: "TURN_PLAYED",
         START_GAME: "START_GAME",
-        FIND_GAME: "FIND_GAME"
+        FIND_GAME: "FIND_GAME",
+        GAME_WON: "GAME_WON",
+        RESTART_GAME: "RESTART_GAME",
     }
 }
 
@@ -18,7 +20,11 @@ const SERVER = {
     },
     BROADCAST: {
         TURN_BEEN_PLAYED: "TURN_BEEN_PLAYED",
-        STARTING_GAME: "STARTING_GAME"
+        STARTING_GAME: "STARTING_GAME",
+        GAME_LOST: "GAME_LOST",
+        GAME_WON: "GAME_WON",
+        GAME_DRAW: "GAME_DRAW", 
+        RESTARTING_GAME: "RESTARTING_GAME"
     }
 }
 
@@ -29,7 +35,11 @@ const STATE = {
         MY_TURN: "MY_TURN",
         START_GAME: "START_GAME",
         CONNECT: "CONNECT", 
-        SERVER_STATS:"SERVER_STATS"
+        SERVER_STATS:"SERVER_STATS",
+        GAME_DRAW: "GAME_DRAW",
+        GAME_WON: "GAME_WON",
+        GAME_LOST: "GAME_LOST", 
+        RESTART_GAME: "RESTART_GAME"
     }
 }
 module.exports = {
