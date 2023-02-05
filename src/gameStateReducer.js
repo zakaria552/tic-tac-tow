@@ -6,7 +6,10 @@ export const initialState = {
     grid: [["", "", ""], ["", "", ""],["", "", ""]],
     wsClient: "",
     message: "",
-    serverStats: ""
+    serverStats: "",
+    gameWon: false,
+    gameLost: false,
+    gameDraw: false
 }
 
 export const gameStateReducer = (gameState, action) => {
@@ -35,6 +38,27 @@ export const gameStateReducer = (gameState, action) => {
             return newState
         case STATE.ACTION.SERVER_STATS:
             newState.serverStats = action.payload.clients
+            return newState
+        case STATE.ACTION.GAME_WON: 
+            newState.gameWon = true
+            return newState
+        case STATE.ACTION.GAME_DRAW: 
+            newState.gameDraw = true
+            newState.grid = action.payload.grid
+            return newState
+        case STATE.ACTION.GAME_LOST: 
+            newState.gameLost = true
+            newState.grid = action.payload.grid
+            return newState
+        case STATE.ACTION.RESTART_GAME:
+            console.log("resetting states")
+            newState.gameDraw = false
+            newState.gameLost = false
+            newState.gameWon = false
+            newState.myTurn = false
+            newState.gameStart = false
+            newState.grid = [["", "", ""], ["", "", ""],["", "", ""]]
+            newState.message = ""
             return newState
         default:
             return gameState

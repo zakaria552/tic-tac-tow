@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react"
-import { winCheck} from "../utils/gamelogic"
+import { checkGameState} from "../utils/gamelogic"
 import "../styles.css"
 import { CLIENT, STATE } from "../utils/constants"
 function Game(props) {
     const {state, dispatch} = props  
-    console.log(props)
     const playYourTurn = (e) => {
         console.log("my role ", state.playerRole)
         const [i, j] = e.target.id.split("")
@@ -12,6 +11,11 @@ function Game(props) {
         let mutatedGrid = [...state.grid]
         if(state.playerRole) {
             mutatedGrid[i][j] = state.playerRole
+            const gameState = checkGameState(mutatedGrid)
+            message.payload.gameState = gameState
+            if(gameState.draw) dispatch({type: STATE.ACTION.GAME_DRAW})
+            if(gameState.won) dispatch({type: STATE.ACTION.GAME_WON})
+            console.log("gamestate", gameState)
             dispatch({type: STATE.ACTION.TURN_PLAYED, payload:{grid: mutatedGrid}})
             state.wsClient.send(JSON.stringify(message))
         } 
@@ -19,7 +23,7 @@ function Game(props) {
     useEffect(() => {
         console.log("start: " + state.startGame, " myturn: " + state.myTurn )
         console.log(props)
-    }, [state, state.myTurn])
+    }, [state.grid])
     return (
         <div className="border-2 border-gray-800 flex flex-col h-2/3 w-1/3">
             {state.grid.map((row, i) => {

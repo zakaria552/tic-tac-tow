@@ -55,4 +55,27 @@ function winCheck(grid) {
     if(diagCheck(grid)) return true
     return false
 }
-export  {winCheck}
+
+function drawCheck(grid) {
+    let draw = false
+    for(let i = 0; i < grid.length; i++) {
+        const row = grid[i]
+        if(row.includes("")) {
+            break;
+        } else {
+            if(i === grid.length - 1) draw = true
+            continue
+        } 
+    }
+    return draw
+}
+function checkGameState(grid) {
+    const gameState = {won: false, draw: false}
+    if(winCheck(grid)) {
+        gameState.won = true
+    } else {
+        if(drawCheck(grid)) gameState.draw = true
+    }
+    return gameState
+}
+export  {checkGameState}

@@ -26,6 +26,20 @@ function App() {
     gridAfterMove[payload.move[0]][payload.move[1]] = payload.move[2]
     dispatch({type: STATE.ACTION.MY_TURN, payload:{grid: gridAfterMove, message: "move played: " + payload.move[0] + payload.move[1]}})
   }
+  const lostHandle = (payload) => {
+    let gridAfterMove = state.grid
+    gridAfterMove[payload.move[0]][payload.move[1]] = payload.move[2]
+    dispatch({type:STATE.ACTION.GAME_LOST, payload:{grid:gridAfterMove}})
+  }
+  const drawHandle = (payload) => {
+    let gridAfterMove = state.grid
+    gridAfterMove[payload.move[0]][payload.move[1]] = payload.move[2]
+    dispatch({type: STATE.ACTION.GAME_DRAW, payload:{grid:gridAfterMove}})
+  }
+  const restartGame = () => {
+    console.log("restart")
+    state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.RESTART_GAME}))
+  }
   useEffect(() => {
     console.log("useEffect", state.grid )
     if(state.playerRole === "x") state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.START_GAME, payload: {message: "start the game"}}))
@@ -57,6 +71,17 @@ function App() {
           case SERVER.BROADCAST.TURN_BEEN_PLAYED:
             handleTurn(payload)
             break;
+          case SERVER.BROADCAST.GAME_DRAW:
+            drawHandle(payload)
+            break;
+          case SERVER.BROADCAST.GAME_LOST:
+            lostHandle(payload)
+            break;
+          // case SERVER.BROADCAST.RESTARTING_GAME:
+          //   console.log("restarting")
+          //   dispatch({type:STATE.ACTION.RESTART_GAME})
+          //   gameStart(payload)
+          //   break;
           default:
             break;
         }
@@ -73,6 +98,9 @@ function App() {
         <button className='bg-green-600 m-5 p-3 rounded-md hover:bg-green-400' onClick={""}>reset</button>
       </div>
       {state.message ? <h1 className='text-2xl'>{state.message}</h1>: ""}
+      {state.gameDraw ? <h1>Game draw</h1>: ""}
+      {state.gameLost ? <h1>Game Lost</h1>: ""}
+      {state.gameWon ? <h1>Game won</h1>: ""}
     </div>
   );
 }
