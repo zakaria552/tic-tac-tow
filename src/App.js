@@ -15,6 +15,7 @@ function App() {
   const asignArole = (payload) => {
     console.log("setting ", payload.role)
     dispatch({type: STATE.ACTION.ASIGNED_ROLE, payload:{role: payload.role, message: "Asigned you the role: " + payload.role}})
+    state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.START_GAME, payload: {message: "start the game"}}))
   }
   const gameStart = (payload) => {
     console.log("Starting game")
@@ -22,7 +23,7 @@ function App() {
     dispatch({type: STATE.ACTION.START_GAME, payload:{playerTurn: payload.playerTurn}})
   }
   const handleTurn = (payload) => {
-    let gridAfterMove = state.grid
+    let gridAfterMove = [...state.grid]
     gridAfterMove[payload.move[0]][payload.move[1]] = payload.move[2]
     dispatch({type: STATE.ACTION.MY_TURN, payload:{grid: gridAfterMove, message: "move played: " + payload.move[0] + payload.move[1]}})
   }
@@ -42,7 +43,7 @@ function App() {
   }
   useEffect(() => {
     console.log("useEffect", state.grid )
-    if(state.playerRole === "x") state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.START_GAME, payload: {message: "start the game"}}))
+    // if(state.playerRole === "x" && state.START_GAME === true) state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.START_GAME, payload: {message: "start the game"}}))
     if(!state.wsClient) {
       let wsClient = new WebSocket(url)
       dispatch({type: STATE.ACTION.CONNECT, payload:{wsClient}})
@@ -77,17 +78,12 @@ function App() {
           case SERVER.BROADCAST.GAME_LOST:
             lostHandle(payload)
             break;
-          // case SERVER.BROADCAST.RESTARTING_GAME:
-          //   console.log("restarting")
-          //   dispatch({type:STATE.ACTION.RESTART_GAME})
-          //   gameStart(payload)
-          //   break;
           default:
             break;
         }
       }
     }
-  }, [state.wsClient, state.playerRole])
+  }, [state.wsClient, state.playerRole, state.grid])
   return (
     <div className="App flex flex-col items-center justify-center bg-emerald-200 h-screen">
       <h2 className='text-3xl'>hello</h2>
@@ -95,7 +91,7 @@ function App() {
       <Game state={state} dispatch={dispatch}/>
       <div>
         <button className='bg-green-600 m-5 p-3 rounded-md hover:bg-green-400' onClick={findGame}>Join a  game</button>
-        <button className='bg-green-600 m-5 p-3 rounded-md hover:bg-green-400' onClick={""}>reset</button>
+        <button className='bg-green-600 m-5 p-3 rounded-md hover:bg-green-400' onClick={restartGame}>reset</button>
       </div>
       {state.message ? <h1 className='text-2xl'>{state.message}</h1>: ""}
       {state.gameDraw ? <h1>Game draw</h1>: ""}

@@ -28,12 +28,13 @@ wsServer.on("connection", (socket) => {
                 findGame(socket)
                 break;
             case CLIENT.MESSAGES.START_GAME:
+                console.log("start loop?")
                 setTimeout(() => broadcast({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}), 500)
                 break;
-            // case CLIENT.MESSAGES.RESTART_GAME:
-            //     let message1 = {type: SERVER.BROADCAST.RESTARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}
-            //     setTimeout(() => broadcastGame(message1, socket, true), 500)
-            //     break;
+            case CLIENT.MESSAGES.RESTART_GAME:
+                let message1 = {type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne], restart: true}}
+                setTimeout(() => broadcastGame(message1, socket, true), 500)
+                break;
             case CLIENT.MESSAGES.TURN_PLAYED:
                 console.log(payload)
                 let message = {type: SERVER.BROADCAST.TURN_BEEN_PLAYED, payload: {move: payload.move}}
