@@ -30,7 +30,13 @@ export const gameStateReducer = (gameState, action) => {
             newState.message = action.payload.message
             return newState
         case STATE.ACTION.START_GAME:
+            newState.gameDraw = false
+            newState.gameLost = false
+            newState.gameWon = false
             newState.myTurn = gameState.playerRole === action.payload.playerTurn
+            newState.gameStart = true
+            newState.grid = [["", "", ""], ["", "", ""],["", "", ""]]
+            newState.message = ""
             newState.startGame = true
             return newState
         case  STATE.ACTION.CONNECT:
@@ -49,16 +55,6 @@ export const gameStateReducer = (gameState, action) => {
         case STATE.ACTION.GAME_LOST: 
             newState.gameLost = true
             newState.grid = action.payload.grid
-            return newState
-        case STATE.ACTION.RESTART_GAME:
-            console.log("resetting states")
-            newState.gameDraw = false
-            newState.gameLost = false
-            newState.gameWon = false
-            newState.myTurn = false
-            newState.gameStart = false
-            newState.grid = [["", "", ""], ["", "", ""],["", "", ""]]
-            newState.message = ""
             return newState
         default:
             return gameState
