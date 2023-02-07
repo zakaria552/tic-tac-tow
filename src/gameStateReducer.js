@@ -9,7 +9,8 @@ export const initialState = {
     serverStats: "",
     gameWon: false,
     gameLost: false,
-    gameDraw: false
+    gameDraw: false,
+    gameOver: false
 }
 
 export const gameStateReducer = (gameState, action) => {
@@ -33,6 +34,7 @@ export const gameStateReducer = (gameState, action) => {
             newState.gameDraw = false
             newState.gameLost = false
             newState.gameWon = false
+            newState.gameOver = false
             newState.myTurn = gameState.playerRole === action.payload.playerTurn
             newState.gameStart = true
             newState.grid = [["", "", ""], ["", "", ""],["", "", ""]]
@@ -47,14 +49,17 @@ export const gameStateReducer = (gameState, action) => {
             return newState
         case STATE.ACTION.GAME_WON: 
             newState.gameWon = true
+            newState.gameOver = true
             return newState
         case STATE.ACTION.GAME_DRAW: 
             newState.gameDraw = true
             newState.grid = action.payload.grid
+            newState.gameOver = true
             return newState
         case STATE.ACTION.GAME_LOST: 
             newState.gameLost = true
             newState.grid = action.payload.grid
+            newState.gameOver = true
             return newState
         default:
             return gameState

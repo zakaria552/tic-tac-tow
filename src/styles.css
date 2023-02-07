@@ -1,4 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Courgette&family=Itim&family=Quicksand:wght@300;500&family=Rowdies&family=Shadows+Into+Light+Two&family=Silkscreen&display=swap');
 .text1 {
-    font-size: 9rem;
-    line-height: 1;
+    font-size: 6rem;
+    line-height: 1; 
+}
+
+.bg-app {
+    background-color: #77c1e6e4;
+    /* background-color: rgb(31, 24, 67); */
+    background-image: url("/public/8088707.gif");
+}
+
+.bg-game {
+    background-color: #56649eb9;
+    /* background-color: rgba(178, 215, 215, 0.208); */
+}
+.color-border {
+    /* border-color: #a594f9; */
+    border-color: #f5c9d5a1
+}
+
+.color-btn {
+    background-color: #f5c9d5aa;
+    box-shadow: 3px 4px 3px 1px rgba(140, 140, 152, 0.623);
+    color: #413C6D;
+    font-weight: 500;
+    font-family: 'Itim', cursive;
+}
+.color-btn:hover {
+    background-color: #f5c9d5ea;
+    
+}
+
+.h1 {
+    font-family: "Itim", sursive;
 }

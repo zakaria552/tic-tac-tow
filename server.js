@@ -63,11 +63,13 @@ const findGame = (socket) => {
             publicGames[lastIndex].roles.push(roles[1])
             publicGames[lastIndex].clients.push(socket)
             message.payload.role = roles[1]
+            message.payload.start = true
         } else {
             let room = {roles:[roles[0]], clients:[socket]}
             publicGames.push(room)
             message.payload.role = roles[0]
         }
+        console.log(publicGames)
     }
     socket.send(JSON.stringify(message))
 }
