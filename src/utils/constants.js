@@ -1,4 +1,4 @@
-const PORT = 3036
+const PORT = process.env.WSURL || 3036
 
 const CLIENT = {
     MESSAGES: {

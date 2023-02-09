@@ -9,7 +9,7 @@ function App() {
   const [state, dispatch] = useReducer(gameStateReducer, initialState)
   const [hideModel, setHideModel] = useState(true)
   const [input, setInput] = useState("")
-  const url = `ws://localhost:${PORT}` // server to ws
+  const url = `ws://be-tictactow.herokuapp.com/` // server to ws
 
   // helper functions
   const findGame = () => {
