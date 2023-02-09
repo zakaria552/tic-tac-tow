@@ -42,6 +42,10 @@ wsServer.on("connection", (socket) => {
                 if(payload.gameState.draw) message.type = SERVER.BROADCAST.GAME_DRAW
                 broadcastGame(message, socket)
                 break;
+            case CLIENT.MESSAGES.LEAVE_GAME:
+                console.log("leaving game")
+                leaveGame(socket)
+                break;
             default:
                 break;
         }
@@ -82,10 +86,10 @@ function broadcast(message, socketToOmit) {
     });
 }
 
-function broadcastGame(message, socketToOmit, restart = false) {
+function broadcastGame(message, socketToOmit, broadcastToAll = false) {
     let room = publicGames.find((room) => room.clients.includes(socketToOmit))
     room.clients.forEach((connectedClient) => {
-        if(restart) {
+        if(broadcastToAll) {
             connectedClient.send(JSON.stringify(message))
         } else {
             if(connectedClient.readyState === WebSocket.OPEN && connectedClient !== socketToOmit) {
@@ -93,4 +97,18 @@ function broadcastGame(message, socketToOmit, restart = false) {
             }
         }
     })
+}
+function leaveGame(socket) {
+    message = {type: SERVER.BROADCAST.CLOSING_ROOM}
+    broadcastGame(message, socket)
+    for(let i = 0; i < publicGames.length; i++) {
+        let room = publicGames[i]
+        if(room.clients.includes(socket)) {
+            console.log(room)
+            room.roles = []
+            room.clients = []
+            console.log(room)
+            break;
+        }
+    }
 }

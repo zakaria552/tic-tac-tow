@@ -7,6 +7,8 @@ import {PORT, CLIENT, SERVER, STATE} from "./utils/constants"
 
 function App() {
   const [state, dispatch] = useReducer(gameStateReducer, initialState)
+  const [hideModel, setHideModel] = useState(true)
+  const [input, setInput] = useState("")
   const url = `ws://localhost:${PORT}` // server to ws
 
   // helper functions
@@ -43,6 +45,20 @@ function App() {
       console.log("restart")
       state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.RESTART_GAME}))
     }
+  }
+  const cancel = () => {
+    console.log("leaving")
+    state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.LEAVE_GAME}))
+    dispatch({type: STATE.ACTION.CANCEL_SEARCH})
+  }
+  const modelHandle = (e) => {
+    dispatch({type: STATE.ACTION.CHANGE_GAME_MODE, mode: e.target.innerHTML})
+    setHideModel(!hideModel)
+  }
+  const submitHandler = (e) => {
+    e.preventDefault()
+    setInput("")
+    console.log(input)
   }
   useEffect(() => {
     console.log("useEffect", state.grid )
@@ -81,6 +97,9 @@ function App() {
           case SERVER.BROADCAST.GAME_LOST:
             lostHandle(payload)
             break;
+          case SERVER.BROADCAST.CLOSING_ROOM:
+            dispatch({type: STATE.ACTION.CANCEL_SEARCH})
+            break;
           default:
             break;
         }
@@ -88,7 +107,7 @@ function App() {
     }
   }, [state.wsClient, state.playerRole, state.grid])
   return (
-    <div className="App flex flex-col items-center bg-app bg-cover h-screen">
+    <div className="App flex flex-col items-center bg-app bg-cover h-screen overflow-hidden">
         {!state.gameStart ? <h1 className='text-5xl h1 text-slate-700 mt-24 mb-5'>Tic-Tac-Tow</h1>: ""}
         {state.gameStart && !state.gameOver ? (<div className="flex flex-col mt-20" >
           <h1 className='h1 text-2xl'>Player turn</h1>
@@ -101,21 +120,50 @@ function App() {
           {state.gameWon ? <h1 className='h1 text-4xl'>Game won</h1>: ""}
         </div>: ""}
       <div className='flex justify-between items-center w-full ml-2'>
-        {state.playerRole && !state.gameOver ? <div className='h1 self-start ml-2 text-lg'>role:  {state.playerRole}</div>: ""}
+        <div className={`h1 self-start ml-2 text-lg ${state.playerRole && !state.gameOver ? "": "opacity-0"}`}>role:  {state.playerRole}</div>
       </div>
       <Game state={state} dispatch={dispatch}/>
-      <div>
-        {!state.startGame ? <button className={'color-btn m-5 p-3 rounded-md '} onClick={findGame}>find a  game</button> : ""}
+
+      <div className=' flex justify-center w-full mt-5'>
+        {!state.startGame && !state.playerRole && state.gameMode === "custom game" ? 
+        <form className='flex flex-col justify-center items-center' onSubmit={submitHandler}>
+          <input className="color-input text-center h1 text-sm p-1 rounded-md mb-2 border-2 focus:outline-none" placeholder='game pin' required value={input} onChange={(e) => setInput(e.target.value)}></input>
+          <button className='color-btn self-center p-3 rounded-md'>create a game</button>
+        </form>:""}
+
+        {state.gameMode === "play offline" ? <button className='color-btn self-center m-5 p-3 rounded-md '>play offline</button> :""}
         
-        {state.startGame ? <button className='color-btn m-5 p-3 rounded-md ' onClick={restartGame}>reset</button>: ""}
+        {!state.startGame && !state.playerRole && state.gameMode === "find a game" ? <button className={'color-btn self-center m-5 p-3 rounded-md '} onClick={findGame}>find a  game</button> : ""}
+        {!state.startGame && state.playerRole ? <div className='flex items-center justify-center'>
+          <h1 className='h1 mr-5'>finding a game...</h1>
+          <button className='bg-slate-600' onClick={cancel}>cancel</button>
+        </div> : ""}
+        {state.startGame ?<div>
+          <button className='color-btn m-5 p-3 rounded-md ' onClick={restartGame}>play again</button>
+          <button className='color-btn m-5 p-3 rounded-md ' onClick={cancel}>exit game</button>
+        </div>
+        : ""}
       </div>
       {state.serverStats ?
+
        <div className='flex flex-col justify-center items-center'>
         <h2 className='h1 text-6xl'>{state.serverStats}</h2>
         <h2 className='h1 text-xl'>concurrent</h2>
         <h1 className=''>players</h1>
         </div>: ""
        }
+       <div className={`model flex-col absolute w-4/5 h-3/6 top-44 ${hideModel ? "hidden" : ""} rounded-md `} id="model">
+          <div className='flex justify-end w-full h-10'>
+            <div className='h1 text-xl self-center mr-3 cursor-pointer' onClick={() => setHideModel(!hideModel)}>X</div>
+          </div>
+          <h1 className='h1 text-2xl text-center w-full'>options</h1>
+          <div className='flex flex-col h-fit justify-center items-center mt-10 rounded-md'>
+            <button className='color-options h1 text-lg m-1 p-2 w-3/5 text-center shadow-lg rounded-md' onClick={modelHandle}>find a game</button>
+            <button className='color-options h1 text-lg m-1 p-2 w-3/5 text-center shadow-lg rounded-md' onClick={modelHandle}>play offline</button>
+            <button className='color-options h1 m-1 p-2 w-3/5 shadow-lg rounded-md text-lg text-center' onClick={modelHandle}>custom game</button>
+          </div>
+       </div>
+       <div className='absolute w-full cursor-pointer' ><img className="w-9" onClick={() => setHideModel(!hideModel)} src="/filter.png"></img></div>
     </div>
   );
 }
