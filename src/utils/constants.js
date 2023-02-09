@@ -8,7 +8,8 @@ const CLIENT = {
         FIND_GAME: "FIND_GAME",
         GAME_WON: "GAME_WON",
         RESTART_GAME: "RESTART_GAME",
-        LEAVE_GAME: "LEAVE_GAME"
+        LEAVE_GAME: "LEAVE_GAME",
+        START_CUSTOM_GAME: "START_CUSTOME_GAME"
     }
 }
 

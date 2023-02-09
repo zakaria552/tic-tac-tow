@@ -29,7 +29,11 @@ wsServer.on("connection", (socket) => {
                 break;
             case CLIENT.MESSAGES.START_GAME:
                 console.log("start loop?")
-                setTimeout(() => broadcast({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}), 500)
+                setTimeout(() => broadcastGame({type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne]}}, socket, true), 500)
+                break;
+            case CLIENT.MESSAGES.START_CUSTOM_GAME:
+                console.log("creating/joining custom game")
+                findOrCreateGameByPin(socket, payload.pin)
                 break;
             case CLIENT.MESSAGES.RESTART_GAME:
                 let message1 = {type: SERVER.BROADCAST.STARTING_GAME, payload: {playerTurn: roles[zeroOrOne], restart: true}}
@@ -62,7 +66,7 @@ const findGame = (socket) => {
         publicGames.push(room)
         message.payload.role = roles[0]
     } else {
-        if(room.roles.length === 1) {
+        if(room.roles.length === 1 && !room.pin) {
             // room.push(roles[1])
             publicGames[lastIndex].roles.push(roles[1])
             publicGames[lastIndex].clients.push(socket)
@@ -88,6 +92,7 @@ function broadcast(message, socketToOmit) {
 
 function broadcastGame(message, socketToOmit, broadcastToAll = false) {
     let room = publicGames.find((room) => room.clients.includes(socketToOmit))
+    console.log(room)
     room.clients.forEach((connectedClient) => {
         if(broadcastToAll) {
             connectedClient.send(JSON.stringify(message))
@@ -105,10 +110,35 @@ function leaveGame(socket) {
         let room = publicGames[i]
         if(room.clients.includes(socket)) {
             console.log(room)
-            room.roles = []
-            room.clients = []
+            publicGames.splice(i,1)
+            // room.roles = []
+            // room.clients = []
             console.log(room)
             break;
         }
     }
+}
+
+function findOrCreateGameByPin(socket, pin) {
+    //[{}] --> {roles:[], clients:[], pin: ""}
+    const message = {type: SERVER.MESSAGES.ROLE_ASIGNMENT, payload: {}}
+    let room = publicGames.find((room) => room.pin === pin)
+    if(!room) {
+        // {roles:[], clients:[]}
+        room = {roles:[roles[0]], clients:[socket], pin}
+        publicGames.push(room)
+        message.payload.role = roles[0]
+        console.log(room.roles)
+    } else {
+        if(room.roles.length === 1) {
+            // room.push(roles[1])
+            room.roles.push(roles[1])
+            room.clients.push(socket)
+            publicGames.splice(publicGames.indexOf(room), 1, room)
+            console.log(publicGames)
+            message.payload.role = roles[1]
+            message.payload.start = true
+        }
+    }
+    socket.send(JSON.stringify(message))
 }

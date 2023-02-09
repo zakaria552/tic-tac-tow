@@ -57,8 +57,13 @@ function App() {
   }
   const submitHandler = (e) => {
     e.preventDefault()
+    state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.START_CUSTOM_GAME, payload:{pin:input}}))
     setInput("")
     console.log(input)
+  }
+  const optionHandler = (e) => {
+    if(state.playerRole && !state.gameStart) cancel()
+    setHideModel(!hideModel)
   }
   useEffect(() => {
     console.log("useEffect", state.grid )
@@ -135,7 +140,7 @@ function App() {
         
         {!state.startGame && !state.playerRole && state.gameMode === "find a game" ? <button className={'color-btn self-center m-5 p-3 rounded-md '} onClick={findGame}>find a  game</button> : ""}
         {!state.startGame && state.playerRole ? <div className='flex items-center justify-center'>
-          <h1 className='h1 mr-5'>finding a game...</h1>
+          <h1 className='h1 mr-5'>{state.gameMode === "custom game" ? "waiting for someone to join...":"finding a game..."}</h1>
           <button className='bg-slate-600' onClick={cancel}>cancel</button>
         </div> : ""}
         {state.startGame ?<div>
@@ -163,7 +168,7 @@ function App() {
             <button className='color-options h1 m-1 p-2 w-3/5 shadow-lg rounded-md text-lg text-center' onClick={modelHandle}>custom game</button>
           </div>
        </div>
-       <div className='absolute w-full cursor-pointer' ><img className="w-9" onClick={() => setHideModel(!hideModel)} src="/filter.png"></img></div>
+       <div className='absolute w-full cursor-pointer' ><img className="w-9" onClick={optionHandler} src="/filter.png"></img></div>
     </div>
   );
 }
