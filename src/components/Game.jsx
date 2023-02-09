@@ -28,7 +28,6 @@ function Game(props) {
     return (
         <div className="flex flex-col h-3/6 w-11/12">
             {state.grid.map((row, i) => {
-                {console.log(row)}
                 return (
                     <div key={i} className={`flex justify-center items-center h-1/3 color-border ${i === 0 || i === 1 ? "border-b-4": ""} rounded-md`}>
                         {row.map((tile,j) => {

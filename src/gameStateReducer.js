@@ -10,11 +10,13 @@ export const initialState = {
     gameWon: false,
     gameLost: false,
     gameDraw: false,
-    gameOver: false
+    gameOver: false,
+    gameMode: "find a game",
+    gamePin: ""
 }
 
 export const gameStateReducer = (gameState, action) => {
-    const newState = {...gameState}
+    let newState = {...gameState}
     newState.grid = [...gameState.grid]
     switch(action.type) {
         case STATE.ACTION.TURN_PLAYED:
@@ -60,6 +62,15 @@ export const gameStateReducer = (gameState, action) => {
             newState.gameLost = true
             newState.grid = action.payload.grid
             newState.gameOver = true
+            return newState
+        case STATE.ACTION.CANCEL_SEARCH:
+            newState = initialState
+            newState.wsClient = gameState.wsClient
+            newState.serverStats = gameState.serverStats
+            return newState
+        case STATE.ACTION.CHANGE_GAME_MODE:
+            console.log(action)
+            newState.gameMode = action.mode
             return newState
         default:
             return gameState

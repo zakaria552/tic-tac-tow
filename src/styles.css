@@ -34,3 +34,18 @@
 .h1 {
     font-family: "Itim", sursive;
 }
+
+.model {
+    background-color: #413c6df7;
+}
+.close {
+    left: 95%
+}
+.color-options {
+    background-color: #f5c9d526;
+}
+
+.color-input {
+    background-color: #22184f72;
+    border-color: #100434ea;
+}

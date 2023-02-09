@@ -1,4 +1,4 @@
-const PORT = 3035
+const PORT = 3036
 
 const CLIENT = {
     MESSAGES: {
@@ -8,6 +8,7 @@ const CLIENT = {
         FIND_GAME: "FIND_GAME",
         GAME_WON: "GAME_WON",
         RESTART_GAME: "RESTART_GAME",
+        LEAVE_GAME: "LEAVE_GAME"
     }
 }
 
@@ -24,7 +25,8 @@ const SERVER = {
         GAME_LOST: "GAME_LOST",
         GAME_WON: "GAME_WON",
         GAME_DRAW: "GAME_DRAW", 
-        RESTARTING_GAME: "RESTARTING_GAME"
+        RESTARTING_GAME: "RESTARTING_GAME",
+        CLOSING_ROOM: "CLOSING_ROOM" 
     }
 }
 
@@ -39,7 +41,9 @@ const STATE = {
         GAME_DRAW: "GAME_DRAW",
         GAME_WON: "GAME_WON",
         GAME_LOST: "GAME_LOST", 
-        RESTART_GAME: "RESTART_GAME"
+        RESTART_GAME: "RESTART_GAME",
+        CANCEL_SEARCH: "CANCEL_SEARCH",
+        CHANGE_GAME_MODE: "CHANGE_GAME_MODE"
     }
 }
 module.exports = {
