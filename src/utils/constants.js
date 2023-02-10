@@ -1,4 +1,4 @@
-const PORT = process.env.WSURL || 3036
+// const PORT = process.env.WSURL || 3036
 
 const CLIENT = {
     MESSAGES: {
@@ -48,7 +48,6 @@ const STATE = {
     }
 }
 module.exports = {
-    PORT,
     CLIENT,
     SERVER,
     STATE

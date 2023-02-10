@@ -30,6 +30,10 @@
     background-color: #f5c9d5ea;
     
 }
+.text-color {
+    color: #f5c9d5ea;
+    text-decoration-line: underline;
+}
 
 .h1 {
     font-family: "Itim", sursive;
