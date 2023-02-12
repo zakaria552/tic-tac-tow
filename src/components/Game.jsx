@@ -14,13 +14,35 @@ function Game(props) {
             mutatedGrid[i][j] = state.playerRole
             const gameState = checkGameState(mutatedGrid)
             message.payload.gameState = gameState
-            if(gameState.draw) dispatch({type: STATE.ACTION.GAME_DRAW})
-            if(gameState.won) dispatch({type: STATE.ACTION.GAME_WON})
+            if(gameState.draw) {
+                dispatch({type: STATE.ACTION.GAME_DRAW, payload:{grid: mutatedGrid}})
+            } else if(gameState.won) {
+                dispatch({type: STATE.ACTION.GAME_WON, payload:{grid: mutatedGrid}})
+            } else {
+                dispatch({type: STATE.ACTION.TURN_PLAYED, payload:{grid: mutatedGrid}})
+            }
             console.log("gamestate", gameState)
-            dispatch({type: STATE.ACTION.TURN_PLAYED, payload:{grid: mutatedGrid}})
             state.wsClient.send(JSON.stringify(message))
-        } 
+        }
+        if(state.playerTurn && e.target.children[0].innerHTML === "") {
+            let nextPlayer = state.playerTurn.player === "player1" ? "player2": "player1"
+            mutatedGrid[i][j] = state.playerTurn.role
+            const gameState = checkGameState(mutatedGrid)
+            console.log("gamestate", gameState)
+            if(gameState.draw || gameState.won) {
+                if(gameState.draw) {
+                    dispatch({type: STATE.ACTION.GAME_DRAW, payload:{grid: mutatedGrid}})
+                } else {
+                    dispatch({type: STATE.ACTION.GAME_OVER, playerWon: state.playerTurn.player})
+                }
+            } else {
+                dispatch({type: STATE.ACTION.PLAYER_TURN_PLAYED, turn: {player:nextPlayer, role:state[nextPlayer]}})
+            }
+            
+        }
+
     }
+    
     useEffect(() => {
         console.log("start: " + state.startGame, " myturn: " + state.myTurn )
         console.log(props)
