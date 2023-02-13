@@ -9,7 +9,8 @@ function App() {
   const [state, dispatch] = useReducer(gameStateReducer, initialState)
   const [hideModel, setHideModel] = useState(true)
   const [input, setInput] = useState("")
-  const url = `wss://be-tic-tac-tow2.onrender.com` // server to ws
+  
+  const url = `wss://be-tictactow.up.railway.app/` // server to ws
 
   // helper functions
   const findGame = () => {
@@ -41,15 +42,21 @@ function App() {
     dispatch({type: STATE.ACTION.GAME_DRAW, payload:{grid:gridAfterMove}})
   }
   const restartGame = () => {
-    if(state.gameOver) {
+    if(state.gameMode === "play offline") {
+      dispatch({type: STATE.ACTION.RESTART_OFFLINE})
+    } else if(state.gameOver) {
       console.log("restart")
       state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.RESTART_GAME}))
     }
   }
   const cancel = () => {
     console.log("leaving")
-    state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.LEAVE_GAME}))
-    dispatch({type: STATE.ACTION.CANCEL_SEARCH})
+    if(state.gameMode !== "play offline") {
+      state.wsClient.send(JSON.stringify({type: CLIENT.MESSAGES.LEAVE_GAME}))
+      dispatch({type: STATE.ACTION.CANCEL_SEARCH})
+    } else {
+      dispatch({type: STATE.ACTION.CANCEL_SEARCH})
+    }
   }
   const modelHandle = (e) => {
     dispatch({type: STATE.ACTION.CHANGE_GAME_MODE, mode: e.target.innerHTML})
@@ -62,8 +69,13 @@ function App() {
     console.log(input)
   }
   const optionHandler = (e) => {
-    if(state.playerRole && !state.gameStart) cancel()
+    if(state.playerRole && !state.startGame) cancel()
     setHideModel(!hideModel)
+  }
+  const playOffline = (e) => {
+    let zeroOrOne = Math.floor(Math.random() * 2)
+    let player = ["player1", "player2"][zeroOrOne]
+    dispatch({type: STATE.ACTION.PLAY_OFFLINE, turn: {player, role: player === "player1" ? "x": "o"}})
   }
   useEffect(() => {
     console.log("useEffect", state.grid )
@@ -114,20 +126,26 @@ function App() {
   return (
     <div className="App flex flex-col items-center bg-app bg-cover h-screen overflow-hidden">
       <div className='mt-24'>
-        {!state.gameStart ? <h1 className='text-5xl h1 text-slate-700 mb-5 md:text-6xl'>Tic-Tac-Tow</h1>: ""}
-        {state.gameStart && !state.gameOver ? (<div className="flex flex-col" >
+        {!state.startGame ? <h1 className='text-5xl h1 text-slate-700 mb-5 md:text-6xl'>Tic-Tac-Tow</h1>: ""}
+        {state.startGame && !state.gameOver ? (<div className="flex flex-col" >
           {/* <h1 className='h1 text-2xl md:text-4xl'>Player turn</h1> */}
+          {state.gameMode !== "play offline" ?
           <h1 className='h1 text-3xl self-center md:text-4xl'>{state.myTurn ? "my turn": "opponent's turn"}</h1>
+          : <h1 className='h1 text-3xl self-center md:text-4xl'>{state.playerTurn.player} turn</h1>}
         </div>) : ""
         }
         {state.gameOver ? <div className='ml-2 h1 text-3xl md:text-4xl'>
           {state.gameDraw ? <h1 className='h1 '>Game draw</h1>: ""}
           {state.gameLost ? <h1 className='h1 '>Game Lost</h1>: ""}
           {state.gameWon ? <h1 className='h1'>Game won</h1>: ""}
+          {state.gameOver && state.gameMode === "play offline" && state.playerWon? <h1 className='h1'>{state.playerWon} has won</h1>: ""}
         </div>: ""}
       </div>
         <div className='flex justify-between items-center w-full ml-2 md:w-9/12 lg:w-4/5 xl:w-7/12'>
-          <div className={`h1 self-start ml-2 text-lg md:text-xl lg:text-3xl ${state.playerRole && !state.gameOver && state.gameStart? "": "opacity-0"}`}>role:  {state.playerRole}</div>
+          {state.playerRole && !state.gameOver && state.startGame? <div className={`h1 self-start ml-2 text-lg md:text-xl lg:text-3xl`}>role:  {state.playerRole}</div>: ""}
+          {/* <div className={`h1 self-start ml-2 text-lg md:text-xl lg:text-3xl ${state.playerRole && !state.gameOver && state.startGame? "": "opacity-0"}`}>role:  {state.playerRole}</div> */}
+          <div className={`h1 self-start ml-2 text-lg md:text-xl lg:text-3xl ${state.player1 && state.startGame && !state.gameOver ? "": "opacity-0"}`}>player 1</div>
+          <div className={`h1 self-start ml-2 mr-6 text-lg md:text-xl lg:text-3xl ${state.player2 && !state.gameOver && state.startGame? "": "opacity-0"}`}>player 2</div>
         </div>
       <Game state={state} dispatch={dispatch}/>
 
@@ -138,7 +156,7 @@ function App() {
           <button className='color-btn self-center p-3 rounded-md md:text-lg'>create a game</button>
         </form>:""}
 
-        {state.gameMode === "play offline" ? <button className='color-btn self-center m-5 p-3 rounded-md md:text-lg'>play offline</button> :""}
+        {state.gameMode === "play offline" && !state.startGame ? <button className='color-btn self-center m-5 p-3 rounded-md md:text-lg' onClick={playOffline}>play offline</button> :""}
         
         {!state.startGame && !state.playerRole && state.gameMode === "find a game" ? <button className={'color-btn self-center m-5 p-3 rounded-md md:text-lg'} onClick={findGame}>find a  game</button> : ""}
         {!state.startGame && state.playerRole ? <div className='flex items-center justify-center m-5 p-3'>
