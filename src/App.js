@@ -157,7 +157,7 @@ function App() {
         <h2 className='h1 text-6xl'>{state.serverStats}</h2>
         <h2 className='h1 text-xl'>concurrent</h2>
         <h1 className=''>players</h1>
-        </div>: ""
+        </div>: <h2>connecting...</h2>
        }
        <div className={`model flex-col absolute w-4/5 h-3/6 top-44 md:w-3/5 md:top-52 xl:w-1/3 ${hideModel ? "hidden" : ""} rounded-md `} id="model">
           <div className='flex justify-end w-full h-10'>
@@ -165,7 +165,7 @@ function App() {
           </div>
           <h1 className='h1 text-2xl text-center w-full md:text-3xl'>options</h1>
           <div className='flex flex-col h-fit h1 text-lg md:text-xl justify-center items-center mt-10 rounded-md'>
-            <button className='color-options h1  m-1 p-2 md:p-3 w-3/5 text-center shadow-lg rounded-md' onClick={modelHandle}>find a game</button>
+            <button className='color-options h1  m-1 p-2 md:p-3 w-3/5 text-center shadow-lg rounded-md' disabled={!state.serverStats} onClick={modelHandle}>find a game</button>
             <button className='color-options h1  m-1 p-2 md:p-3 w-3/5 text-center shadow-lg rounded-md' onClick={modelHandle}>play offline</button>
             <button className='color-options h1 m-1 p-2 md:p-3 w-3/5 shadow-lg rounded-md text-center' onClick={modelHandle}>custom game</button>
           </div>
