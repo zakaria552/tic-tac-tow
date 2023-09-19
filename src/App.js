@@ -9,7 +9,7 @@ function App() {
   const [state, dispatch] = useReducer(gameStateReducer, initialState)
   const [hideModel, setHideModel] = useState(true)
   const [input, setInput] = useState("")
-  const url = `wss://be-tic-tac-tow2.onrender.com` // server to ws
+  const url = `wss://be-tictactow.up.railway.app` // server to ws
 
   // helper functions
   const findGame = () => {
